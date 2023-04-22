@@ -1,0 +1,39 @@
+version: "3"
+services:
+  db_gsi:
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_USER: ${USER_DB}
+      POSTGRES_PASSWORD: ${PASS_DB}
+    volumes:
+      - ${PATH_DATA_DB}:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      app_network:
+        ipv4_address: 10.5.0.5
+
+  gsi_backend:
+    container_name: gsi_backend
+    restart: always
+    build: .
+    image: gsi/gsi_backend:v1.0
+    environment:
+      - PORT=3333
+    ports:
+      - "3333:3333"
+    volumes:
+      - ${PATH_LOGS}:/app/logs
+    networks:
+      app_network:
+        ipv4_address: 10.5.0.6
+    depends_on:
+      - db_gsi
+
+networks:
+  app_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1

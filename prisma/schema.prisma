@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+//PROD
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//*****
+
+//DEV
+//datasource db {
+//  provider = "sqlite"
+//  url      = env("DATABASE_URL")
+//}
+
+//*****
+
+model User {
+  id                       Int      @id @default(autoincrement())
+  email                    String   @unique
+  password                 String
+  orgao                    Orgao    @relation(fields: [orgao_id], references: [id], onUpdate: Cascade)
+  orgao_id                 Int
+  first_access             Boolean  @default(true)
+  token_recuperar_password String?
+  orgao_associado          Json?
+  roles                    String   @default("user")
+  createdAt                DateTime @default(now()) @map(name: "created_at") @db.Timestamptz()
+  updatedAt                DateTime @updatedAt @map(name: "updated_at") @db.Timestamptz()
+  createdBy                String   @map(name: "created_by")
+  updatedBy                String   @map(name: "updated_by")
+
+  @@map("users")
+}
+
+model Situacao {
+  id      Int       @id @default(autoincrement())
+  tipo    String
+  viatura Viatura[]
+}
+
+model Orgao {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique
+  sigla     String    @unique
+  user      User[]
+  viatura   Viatura[]
+  createdAt DateTime  @default(now()) @map(name: "created_at") @db.Timestamptz()
+  updatedAt DateTime  @updatedAt @map(name: "updated_at") @db.Timestamptz()
+  createdBy String    @map(name: "created_by")
+  updatedBy String    @map(name: "updated_by")
+}
+
+model Viatura {
+  id                     Int       @id @default(autoincrement())
+  data_regsitro          DateTime
+  situacao               Situacao  @relation(fields: [situacao_id], references: [id])
+  situacao_id            Int
+  processo_vinculacao    String
+  orgao                  Orgao     @relation(fields: [orgao_id], references: [id], onUpdate: Cascade)
+  orgao_id               Int
+  departamento           String
+  nome                   String
+  cpf                    String
+  marca                  String
+  modelo                 String
+  cor                    String
+  ano                    Int
+  chassi                 String
+  renavam                String?
+  placa_oficial          String    @unique
+  locado                 Boolean
+  data_fim_locacao       DateTime?
+  placa_atribuida        String?
+  data_atribuicao        DateTime?
+  doerj_atribuicao       String?
+  data_validade          DateTime?
+  processo_revalidacao   String?
+  data_expiracao         DateTime?
+  doerj_revalidacao      String?
+  processo_desvinculacao String?
+  data_desvinculacao     DateTime?
+  doerj_desvinculacao    String?
+  observacao             String?
+  createdAt              DateTime  @default(now()) @map(name: "created_at")
+  updatedAt              DateTime  @updatedAt @map(name: "updated_at") @db.Timestamptz()
+  createdBy              String    @map(name: "created_by")
+  updatedBy              String    @map(name: "updated_by")
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  level     String
+  message   String
+  meta      Json
+  timestamp DateTime @default(now())
+
+  @@map("logs")
+}
