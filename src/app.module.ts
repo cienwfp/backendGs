@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -8,13 +8,21 @@ import { AuthModule } from './auth/auth.module';
 import { VtrModule } from './vtr/vtr.module';
 
 import { winstonConfig } from './logger/logger.config';
+//import { logger } from './logger/logger.config';
 import { LoggerModule } from './logger/logger.module';
 import { WinstonModule } from 'nest-winston';
-import { LoggerInterceptor } from './logger/logger.interceptor';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { RequestLoggerMiddleware } from './logger/logger.interceptor';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { MailController } from './mail/mail.controller';
 import { MailModule } from './mail/mail.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ThrottlerException, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+
+class MyThrottlerGuard extends ThrottlerGuard {
+  protected throwThrottlingException(): void {
+    throw new ThrottlerException("Máximo de tentativas exedida. Seu login foi suspenso por 5 minutos");
+  }
+}
 
 @Module({
   imports: [
@@ -27,11 +35,24 @@ import { DashboardModule } from './dashboard/dashboard.module';
     LoggerModule,
     MailModule,
     DashboardModule,
+    ThrottlerModule.forRoot({
+      ttl: 60 * 5,
+      limit: 4,
+    })
   ],
   controllers: [AppController, MailController],
-  providers: [AppService, {
-    provide: APP_INTERCEPTOR,
-    useClass: LoggerInterceptor,
-  },],
+  providers: [AppService,
+    /*     {
+          provide: APP_INTERCEPTOR,
+          useClass: RequestLoggerMiddleware,
+        }, */
+    {
+      provide: APP_GUARD,
+      useClass: MyThrottlerGuard,
+    }],
 })
-export class AppModule { }
+export class AppModule {
+    configure(consumer: MiddlewareConsumer) {
+      consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+    }
+}

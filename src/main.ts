@@ -7,12 +7,11 @@ import { winstonConfig } from './logger/logger.config';
 
 async function bootstrap() {
 
-  const logger = WinstonModule.createLogger(winstonConfig);
-
+  const logger = WinstonModule.createLogger(winstonConfig)
   const app = await NestFactory.create(AppModule, { logger, cors: true });
 
   const config = new DocumentBuilder()
-    .setTitle('Cadastro de Placas Reservadas APIs')
+    .setTitle('Sistema de Controle e Auditoria de Placas Especiais - SCAPE')
     .setDescription('Esta API foi desenvolvida para o controle de viaturas oficias que utilizam placa reservada do Estado do Rio de Janeiro. Esta API é mantida pelo Gabinete de Segurança Institucional - GSI do Estado do Rio de Janeiro.')
     .setVersion('1.0')
     .addBearerAuth()

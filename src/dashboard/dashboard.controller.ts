@@ -6,7 +6,9 @@ import { HasRoles } from 'src/auth/rule/has-roles.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth-guard';
 import { RolesGuard } from 'src/auth/rule/role.guard';
 import { Role } from 'src/auth/rule/role.enum';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('dashboard')
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) { }

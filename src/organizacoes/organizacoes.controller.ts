@@ -11,7 +11,9 @@ import {
   PrismaExceptionExistOrganizacao
 } from './execption/exceptionOrganizacao';
 import { UpdateOrganizacoeDto } from './dto/update-organizacoe.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('organizacoes')
 export class OrganizacoesController {
   constructor(private readonly organizacoesService: OrganizacoesService) { }

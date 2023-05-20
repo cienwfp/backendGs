@@ -29,7 +29,6 @@ export class OrganizacoesService {
   }
 
   update(id: number, updateOrganizacoeDto: UpdateOrganizacoeDto) {
-    console.log('id, updateOrganizacoeDto', id, updateOrganizacoeDto)
     const org = this.prisma.orgao.update({
       where: {
         id: Number(id)

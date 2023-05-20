@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
+//import { winstonConfig } from './logger.config';
 import { winstonConfig } from './logger.config';
 import { LoggerService } from './logger.service';
 

@@ -8,7 +8,9 @@ import { RolesGuard } from 'src/auth/rule/role.guard';
 import { HasRoles } from 'src/auth/rule/has-roles.decorator';
 import { Role } from 'src/auth/rule/role.enum';
 import { User } from './role/user.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('vtr')
 export class VtrController {
   constructor(private readonly vtrService: VtrService) { }
@@ -71,7 +73,6 @@ export class VtrController {
       if (error.code === "P2025") {
         throw new PrismaExceptionDeleteNotRecord(error.meta.cause)
       }
-      console.log('error', error)
       throw new PrismaExceptionGenerec()
     }
   }

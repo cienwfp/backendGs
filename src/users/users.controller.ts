@@ -9,7 +9,9 @@ import { RolesGuard } from 'src/auth/rule/role.guard';
 import { Role } from 'src/auth/rule/role.enum';
 import { JwtAuthGuard } from 'src/auth/jwt-auth-guard';
 import * as bcrypt from 'bcrypt';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
