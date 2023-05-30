@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as dayjs from 'dayjs';
-import { registerDecorator } from 'handlebars';
 
 @Injectable()
 export class DashboardService {
@@ -16,7 +15,10 @@ export class DashboardService {
     var count = []
     var countUser = []
     var countRent = []
-
+    var countJaVencido = []
+    var vencidoArray = []
+    var jaVencidoArray = []
+    var countVencido = []
 
     res = await this.prisma.$queryRaw`
       SELECT "public"."Orgao"."sigla", COUNT("public"."Viatura"."orgao_id") as "count_vtr" 
@@ -75,8 +77,10 @@ export class DashboardService {
       //a.push(b)
     })
 
-    const firstdate = dayjs().startOf('month').format("YYYY-MM-DD")
+    const firstdate = dayjs().format("YYYY-MM-DD")
     const lastdate = dayjs().endOf('month').format("YYYY-MM-DD")
+
+    console.log('first', firstdate, lastdate)
 
     const vencido = await this.prisma.viatura.findMany({
       select: {
@@ -93,10 +97,68 @@ export class DashboardService {
       },
       where: {
         data_validade: {
-          gte: new Date(firstdate),
+          gt: new Date(firstdate),
           lte: new Date(lastdate)
         }
       }
+    })
+
+    vencido.forEach((el => {
+      vencidoArray.push({ ...el, status: "Vencendo" })
+    }))
+
+    const jaVencido = await this.prisma.viatura.findMany({
+      select: {
+        processo_vinculacao: true,
+        placa_oficial: true,
+        placa_atribuida: true,
+        data_atribuicao: true,
+        data_validade: true,
+        orgao: {
+          select: {
+            sigla: true,
+          }
+        }
+      },
+      where: {
+        data_validade: {
+          lte: new Date()
+        }
+      }
+    })
+
+    jaVencido.forEach((el => {
+      jaVencidoArray.push({ ...el, status: "Vencido" })
+    }))
+
+    res = await this.prisma.$queryRaw`
+      SELECT "public"."Orgao"."sigla", COUNT("public"."Viatura"."orgao_id") as "count_vtr" 
+          FROM "public"."Viatura", "public"."Orgao" 
+          WHERE ("public"."Viatura"."orgao_id" = "public"."Orgao"."id" AND "public"."Viatura"."data_validade" < ${new Date()} )
+          GROUP BY "public"."Orgao"."sigla" 
+          ORDER BY  "count_vtr" 
+          DESC`
+
+    res.map((el) => {
+      var b = JSON.parse(JSON.stringify(el, (_, v) => typeof v === 'bigint' ? Number(v.toString()) : v))
+      countJaVencido.push({ x: b.sigla, y: b.count_vtr })
+      //a.push(b)
+    })
+
+    res = await this.prisma.$queryRaw`
+    SELECT "public"."Orgao"."sigla", COUNT("public"."Viatura"."orgao_id") as "count_vtr" 
+        FROM "public"."Viatura", "public"."Orgao" 
+        WHERE (
+          "public"."Viatura"."orgao_id" = "public"."Orgao"."id" 
+          AND ("public"."Viatura"."data_validade" > ${new Date(firstdate)} AND "public"."Viatura"."data_validade" < ${new Date(lastdate)}) )
+        GROUP BY "public"."Orgao"."sigla" 
+        ORDER BY  "count_vtr" 
+        DESC`
+
+    res.map((el) => {
+      var b = JSON.parse(JSON.stringify(el, (_, v) => typeof v === 'bigint' ? Number(v.toString()) : v))
+      countVencido.push({ x: b.sigla, y: b.count_vtr })
+      //a.push(b)
     })
 
     return {
@@ -105,7 +167,10 @@ export class DashboardService {
       count: count,
       countUser: countUser,
       countRent: countRent,
-      vencido: vencido
+      vencido: vencidoArray,
+      jaVencido: jaVencidoArray,
+      countJaVencido: countJaVencido,
+      countVencido: countVencido
     };
   }
 

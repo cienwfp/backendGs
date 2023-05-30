@@ -2,7 +2,13 @@ import { HttpStatus, HttpException } from "@nestjs/common";
 
 export class UserNotFoundException extends HttpException {
     constructor(email: string) {
-        super(`o Email - ${email} - não foi encontrado`, HttpStatus.NOT_FOUND);
+        super(`O Email - ${email} - não foi encontrado`, HttpStatus.NOT_FOUND);
+    }
+}
+
+export class UserUnauthorizedException extends HttpException {
+    constructor(email: string) {
+        super(`O Email - ${email} - não está inativo. Entre em contato com o GSI`, HttpStatus.UNAUTHORIZED);
     }
 }
 

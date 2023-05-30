@@ -25,6 +25,7 @@ model User {
   id                       Int      @id @default(autoincrement())
   email                    String   @unique
   password                 String
+  status                   Boolean  @default(true)
   orgao                    Orgao    @relation(fields: [orgao_id], references: [id], onUpdate: Cascade)
   orgao_id                 Int
   first_access             Boolean  @default(true)

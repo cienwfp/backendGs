@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
-import { UserNotFoundException, UnauthorizedException } from './execption/authExceptions';
+import { UserNotFoundException, UnauthorizedException, UserUnauthorizedException } from './execption/authExceptions';
 import * as bcrypt from "bcrypt";
 import 'dotenv/config'
 import { MailService } from 'src/mail/mail.service';
@@ -19,6 +19,9 @@ export class AuthService {
     if (!user) {
       throw new UserNotFoundException(loginDto.email);
     }
+    if (user.status === false) {
+      throw new UserUnauthorizedException(loginDto.email);
+    }
     if (await bcrypt.compare(loginDto.password, user.password)) {
       return await this.gerarToken(user);
     }
@@ -31,7 +34,7 @@ export class AuthService {
         { email: payload.email, roles: payload.roles },
         {
           secret: process.env.SECRET_JWT,
-          expiresIn: '2h',
+          expiresIn: '1d',
         },
       ),
       email: payload.email,

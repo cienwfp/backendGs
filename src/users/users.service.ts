@@ -25,6 +25,7 @@ export class UsersService {
         createdAt: true,
         updatedAt: true,
         orgao_associado: true,
+        status: true,
         orgao: {
           select: {
             id: true,

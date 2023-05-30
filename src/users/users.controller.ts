@@ -69,7 +69,7 @@ export class UsersController {
   @Patch(':email')
   async update(@Param('email') email: string, @Request() req, @Body() updateUserDto: UpdateUserDto) {
     updateUserDto.updatedBy = req.user.email
-    updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10)
+    //updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10)
     const user = await this.usersService.update(email, updateUserDto)
     return user;
   }

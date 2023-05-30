@@ -39,30 +39,42 @@ async function main() {
 
   var situacao: any = {}
 
-  situacao = await prisma.situacao.create({
-    data: { tipo: "ATIVA" }
+  situacao = await prisma.situacao.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      tipo: "ATIVO"
+    }
   })
-  console.log(`O tipo ${situacao.tipo} foi criada na tabaela situacao`)
+  console.log(`O tipo ${situacao.tipo} foi criada na tabela situacao`)
 
-  situacao = await prisma.situacao.create({
-    data: { tipo: "DESTRUIDA" }
+  situacao = await prisma.situacao.upsert({
+    where: { id: 2 },
+    update: {},
+    create: { tipo: "DESTRUIDA" }
   })
-  console.log(`O tipo ${situacao.tipo} foi criada na tabaela situacao`)
+  console.log(`O tipo ${situacao.tipo} foi criada na tabela situacao`)
 
-  situacao = await prisma.situacao.create({
-    data: { tipo: "DESVINCULADA" }
+  situacao = await prisma.situacao.upsert({
+    where: { id: 3 },
+    update: {},
+    create: { tipo: "DESVINCULADA" }
   })
-  console.log(`O tipo ${situacao.tipo} foi criada na tabaela situacao`)
+  console.log(`O tipo ${situacao.tipo} foi criada na tabela situacao`)
 
-  situacao = await prisma.situacao.create({
-    data: { tipo: "EM PROCESSAMENTO" }
+  situacao = await prisma.situacao.upsert({
+    where: { id: 4 },
+    update: {},
+    create: { tipo: "EM PROCESSAMENTO" }
   })
-  console.log(`O tipo ${situacao.tipo} foi criada na tabaela situacao`)
+  console.log(`O tipo ${situacao.tipo} foi criada na tabela situacao`)
 
-  situacao = await prisma.situacao.create({
-    data: { tipo: "INDEFERIDO" }
+  situacao = await prisma.situacao.upsert({
+    where: { id: 5 },
+    update: {},
+    create: { tipo: "INDEFERIDO" }
   })
-  console.log(`O tipo ${situacao.tipo} foi criada na tabaela situacao`)
+  console.log(`O tipo ${situacao.tipo} foi criada na tabela situacao`)
 }
 main()
   .then(async () => {

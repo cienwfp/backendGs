@@ -11,6 +11,9 @@ export class UserEntity implements User {
     @ApiProperty()
     password: string;
 
+    @ApiProperty({ required: true })
+    status: boolean;
+
     @ApiProperty({ required: false })
     orgao_id: number;
 

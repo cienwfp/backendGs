@@ -16,6 +16,10 @@ export class CreateUserDto {
   @IsString()
   password: string;
 
+  @ApiProperty({ required: true })
+  @IsBoolean()
+  status: boolean;
+
   @ApiProperty({ default: "user" })
   @IsNotEmpty({ message: 'O tipo de usuário é um campo obrigatório' })
   @IsString()

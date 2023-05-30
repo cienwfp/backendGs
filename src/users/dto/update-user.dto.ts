@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto';
-import { IsEmail, IsString, IsNotEmpty, IsNumber, IsOptional, IsObject } from 'class-validator';
+import { IsEmail, IsString, IsNotEmpty, IsNumber, IsOptional, IsObject, IsBoolean } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
     @ApiProperty()
@@ -9,6 +9,10 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     @IsNotEmpty({ message: 'O email é um campo obrigatório' })
     @IsString()
     email: string;
+
+    @ApiProperty({ required: true })
+    @IsBoolean()
+    status: boolean;
 
     @ApiProperty({ default: "user" })
     @IsNotEmpty({ message: 'O tipo de usuário é um campo obrigatório' })
