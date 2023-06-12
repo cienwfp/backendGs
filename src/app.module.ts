@@ -20,7 +20,7 @@ import { ThrottlerException, ThrottlerGuard, ThrottlerModule } from '@nestjs/thr
 
 class MyThrottlerGuard extends ThrottlerGuard {
   protected throwThrottlingException(): void {
-    throw new ThrottlerException("Máximo de tentativas exedida. Seu login foi suspenso por 5 minutos");
+    throw new ThrottlerException("Máximo de tentativas exedida. Seu login foi suspenso por 3 minutos");
   }
 }
 
@@ -37,7 +37,7 @@ class MyThrottlerGuard extends ThrottlerGuard {
     DashboardModule,
     ThrottlerModule.forRoot({
       ttl: 60 * 5,
-      limit: 4,
+      limit: 9,
     })
   ],
   controllers: [AppController, MailController],
@@ -52,7 +52,7 @@ class MyThrottlerGuard extends ThrottlerGuard {
     }],
 })
 export class AppModule {
-    configure(consumer: MiddlewareConsumer) {
-      consumer.apply(RequestLoggerMiddleware).forRoutes('*');
-    }
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
 }

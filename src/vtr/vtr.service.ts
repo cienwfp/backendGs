@@ -9,49 +9,62 @@ export class VtrService {
     private prima: PrismaService
   ) { }
 
-  create(createVtrDto: CreateVtrDto) {
-    const vtr = this.prima.viatura.create({
-      data: {
-        data_regsitro: createVtrDto.data_regsitro,
-        processo_vinculacao: createVtrDto.processo_vinculacao,
-        departamento: createVtrDto.departamento,
-        nome: createVtrDto.nome,
-        cpf: createVtrDto.cpf,
-        marca: createVtrDto.marca,
-        modelo: createVtrDto.modelo,
-        cor: createVtrDto.cor,
-        ano: createVtrDto.ano,
-        chassi: createVtrDto.chassi,
-        renavam: createVtrDto.renavam,
-        placa_oficial: createVtrDto.placa_oficial,
-        locado: createVtrDto.locado,
-        data_fim_locacao: createVtrDto.data_fim_locacao,
-        placa_atribuida: createVtrDto.placa_atribuida,
-        data_atribuicao: createVtrDto.data_atribuicao,
-        doerj_atribuicao: createVtrDto.doerj_atribuicao,
-        data_validade: createVtrDto.data_validade,
-        processo_revalidacao: createVtrDto.processo_revalidacao,
-        data_expiracao: createVtrDto.data_expiracao,
-        doerj_revalidacao: createVtrDto.doerj_revalidacao,
-        processo_desvinculacao: createVtrDto.processo_desvinculacao,
-        data_desvinculacao: createVtrDto.data_desvinculacao,
-        doerj_desvinculacao: createVtrDto.doerj_desvinculacao,
-        observacao: createVtrDto.observacao,
-        orgao: {
-          connect: {
-            id: createVtrDto.orgao_id,
-          }
-        },
-        situacao: {
-          connect: {
-            id: createVtrDto.situacao_id
-          }
-        },
-        createdBy: createVtrDto.createdBy,
-        updatedBy: createVtrDto.updatedBy
-      },
-    });
-    return vtr;
+  async create(createVtrDto: CreateVtrDto) {
+
+    if (createVtrDto.placa_atribuida !== null || createVtrDto.placa_atribuida !== '') {
+      const verify = await this.prima.viatura.findFirst({
+        where: {
+          placa_atribuida: createVtrDto.placa_atribuida
+        }
+      })
+
+      if (verify) {
+        throw new Error('A placa já foi atribuida')
+      } else {
+        const vtr = this.prima.viatura.create({
+          data: {
+            data_regsitro: createVtrDto.data_regsitro,
+            processo_vinculacao: createVtrDto.processo_vinculacao,
+            departamento: createVtrDto.departamento,
+            nome: createVtrDto.nome,
+            cpf: createVtrDto.cpf,
+            marca: createVtrDto.marca,
+            modelo: createVtrDto.modelo,
+            cor: createVtrDto.cor,
+            ano: createVtrDto.ano,
+            chassi: createVtrDto.chassi,
+            renavam: createVtrDto.renavam,
+            placa_oficial: createVtrDto.placa_oficial,
+            locado: createVtrDto.locado,
+            data_fim_locacao: createVtrDto.data_fim_locacao,
+            placa_atribuida: createVtrDto.placa_atribuida,
+            data_atribuicao: createVtrDto.data_atribuicao,
+            doerj_atribuicao: createVtrDto.doerj_atribuicao,
+            data_validade: createVtrDto.data_validade,
+            processo_revalidacao: createVtrDto.processo_revalidacao,
+            data_expiracao: createVtrDto.data_expiracao,
+            doerj_revalidacao: createVtrDto.doerj_revalidacao,
+            processo_desvinculacao: createVtrDto.processo_desvinculacao,
+            data_desvinculacao: createVtrDto.data_desvinculacao,
+            doerj_desvinculacao: createVtrDto.doerj_desvinculacao,
+            observacao: createVtrDto.observacao,
+            orgao: {
+              connect: {
+                id: createVtrDto.orgao_id,
+              }
+            },
+            situacao: {
+              connect: {
+                id: createVtrDto.situacao_id
+              }
+            },
+            createdBy: createVtrDto.createdBy,
+            updatedBy: createVtrDto.updatedBy
+          },
+        });
+        return vtr;
+      }
+    }
   }
 
   findOnePlacaAtribuida(placa: string) {

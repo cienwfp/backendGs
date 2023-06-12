@@ -80,7 +80,7 @@ export class DashboardService {
     const firstdate = dayjs().format("YYYY-MM-DD")
     const lastdate = dayjs().endOf('month').format("YYYY-MM-DD")
 
-    console.log('first', firstdate, lastdate)
+    console.log('first', new Date(firstdate), new Date(lastdate))
 
     const vencido = await this.prisma.viatura.findMany({
       select: {
@@ -97,8 +97,8 @@ export class DashboardService {
       },
       where: {
         data_validade: {
-          gt: new Date(firstdate),
-          lte: new Date(lastdate)
+          gt: new Date(new Date(firstdate)),
+          lte: new Date(new Date(lastdate))
         }
       }
     })

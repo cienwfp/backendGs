@@ -29,6 +29,8 @@ export class VtrController {
     catch (error) {
       if (error.code === "P2002") {
         throw new PrismaExceptionExistVtr(error.meta.target[0])
+      } else {
+        throw new PrismaExceptionExistVtr(createVtrDto.placa_atribuida)
       }
     }
   }

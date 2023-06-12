@@ -78,7 +78,7 @@ model Viatura {
   placa_oficial          String    @unique
   locado                 Boolean
   data_fim_locacao       DateTime?
-  placa_atribuida        String?
+  placa_atribuida        String?   @unique
   data_atribuicao        DateTime?
   doerj_atribuicao       String?
   data_validade          DateTime?
