@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as dayjs from 'dayjs';
+import { time } from 'console';
 
 @Injectable()
 export class DashboardService {
@@ -23,7 +24,7 @@ export class DashboardService {
     res = await this.prisma.$queryRaw`
       SELECT "public"."Orgao"."sigla", COUNT("public"."Viatura"."orgao_id") as "count_vtr" 
       FROM "public"."Viatura", "public"."Orgao" 
-      WHERE ("public"."Viatura"."orgao_id" = "public"."Orgao"."id") 
+      WHERE ("public"."Viatura"."orgao_id" = "public"."Orgao"."id" AND "public"."Viatura"."situacao_id" = 1 ) 
       GROUP BY "public"."Orgao"."sigla" 
       ORDER BY  "count_vtr" 
       DESC`
@@ -47,8 +48,9 @@ export class DashboardService {
     })
 
     res = await this.prisma.$queryRaw`
-    SELECT COUNT(*) as "count_vtr" 
-    FROM "public"."Viatura"`
+    SELECT COUNT(*) as "count_vtr"
+    FROM "public"."Viatura"
+    WHERE ("public"."Viatura"."situacao_id" = 1)`
 
     res.map((el) => {
       var b = JSON.parse(JSON.stringify(el, (_, v) => typeof v === 'bigint' ? Number(v.toString()) : v))
@@ -69,7 +71,7 @@ export class DashboardService {
     res = await this.prisma.$queryRaw`
      SELECT COUNT(*) as "count_rent" 
     FROM "public"."Viatura"
-    WHERE "public"."Viatura"."locado" = true `
+    WHERE ("public"."Viatura"."locado" = true AND "public"."Viatura"."situacao_id" = 1)`
 
     res.map((el) => {
       var b = JSON.parse(JSON.stringify(el, (_, v) => typeof v === 'bigint' ? Number(v.toString()) : v))
@@ -80,7 +82,7 @@ export class DashboardService {
     const firstdate = dayjs().format("YYYY-MM-DD")
     const lastdate = dayjs().endOf('month').format("YYYY-MM-DD")
 
-    console.log('first', new Date(firstdate), new Date(lastdate))
+    console.log('first', new Date(dayjs().add(-1, 'day').add(3, 'hours').format("YYYY-MM-DDTHH:mm:ss")))
 
     const vencido = await this.prisma.viatura.findMany({
       select: {
@@ -93,13 +95,20 @@ export class DashboardService {
           select: {
             sigla: true,
           }
-        }
+        },
       },
       where: {
-        data_validade: {
-          gt: new Date(new Date(firstdate)),
-          lte: new Date(new Date(lastdate))
-        }
+        AND: [
+          {
+            data_validade: {
+              gt: new Date(firstdate),
+              lte: new Date(lastdate)
+            },
+          },
+          {
+            situacao_id: 1
+          }
+        ]
       }
     })
 
@@ -107,6 +116,7 @@ export class DashboardService {
       vencidoArray.push({ ...el, status: "Vencendo" })
     }))
 
+    const da = dayjs().add(-1, 'day').format("YYYY-MM-DD")
     const jaVencido = await this.prisma.viatura.findMany({
       select: {
         processo_vinculacao: true,
@@ -121,9 +131,16 @@ export class DashboardService {
         }
       },
       where: {
-        data_validade: {
-          lte: new Date()
-        }
+        AND: [
+          {
+            data_validade: {
+              lte: new Date(new Date(dayjs().add(-1, 'day').add(3, 'hours').format("YYYY-MM-DDTHH:mm:ss")))
+            }
+          },
+          {
+            situacao_id: 1
+          }
+        ]
       }
     })
 
@@ -134,7 +151,7 @@ export class DashboardService {
     res = await this.prisma.$queryRaw`
       SELECT "public"."Orgao"."sigla", COUNT("public"."Viatura"."orgao_id") as "count_vtr" 
           FROM "public"."Viatura", "public"."Orgao" 
-          WHERE ("public"."Viatura"."orgao_id" = "public"."Orgao"."id" AND "public"."Viatura"."data_validade" < ${new Date()} )
+          WHERE ("public"."Viatura"."orgao_id" = "public"."Orgao"."id" AND "public"."Viatura"."data_validade" < ${new Date(dayjs().add(-1, 'day').add(3, 'hours').format("YYYY-MM-DDTHH:mm:ss"))} AND "public"."Viatura"."situacao_id" = 1 )
           GROUP BY "public"."Orgao"."sigla" 
           ORDER BY  "count_vtr" 
           DESC`
@@ -150,7 +167,7 @@ export class DashboardService {
         FROM "public"."Viatura", "public"."Orgao" 
         WHERE (
           "public"."Viatura"."orgao_id" = "public"."Orgao"."id" 
-          AND ("public"."Viatura"."data_validade" > ${new Date(firstdate)} AND "public"."Viatura"."data_validade" < ${new Date(lastdate)}) )
+          AND ("public"."Viatura"."data_validade" > ${new Date(firstdate)} AND "public"."Viatura"."data_validade" < ${new Date(lastdate)} AND "public"."Viatura"."situacao_id" = 1) )
         GROUP BY "public"."Orgao"."sigla" 
         ORDER BY  "count_vtr" 
         DESC`
