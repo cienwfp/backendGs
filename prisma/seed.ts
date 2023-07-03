@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   const org = await prisma.orgao.upsert({
-    where: { nome: 'ORGANIZACAO' },
+    where: { sigla: 'ORG' },
     update: {},
     create: {
       nome: 'ORGANIZACAO',

@@ -6,6 +6,8 @@ services:
     environment:
       POSTGRES_USER: ${USER_DB}
       POSTGRES_PASSWORD: ${PASS_DB}
+    ports:
+      - "16542:5432"
     volumes:
       - ${PATH_DATA_DB}:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
