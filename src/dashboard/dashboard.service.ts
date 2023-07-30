@@ -80,9 +80,7 @@ export class DashboardService {
     })
 
     const firstdate = dayjs().format("YYYY-MM-DD")
-    const lastdate = dayjs().endOf('month').format("YYYY-MM-DD")
-
-    console.log('first', new Date(dayjs().add(-1, 'day').add(3, 'hours').format("YYYY-MM-DDTHH:mm:ss")))
+    const lastdate = dayjs().endOf('month').add(1, 'day').format("YYYY-MM-DD")
 
     const vencido = await this.prisma.viatura.findMany({
       select: {
@@ -116,7 +114,6 @@ export class DashboardService {
       vencidoArray.push({ ...el, status: "Vencendo" })
     }))
 
-    const da = dayjs().add(-1, 'day').format("YYYY-MM-DD")
     const jaVencido = await this.prisma.viatura.findMany({
       select: {
         processo_vinculacao: true,
@@ -134,7 +131,7 @@ export class DashboardService {
         AND: [
           {
             data_validade: {
-              lte: new Date(new Date(dayjs().add(-1, 'day').add(3, 'hours').format("YYYY-MM-DDTHH:mm:ss")))
+              lte: new Date(new Date(dayjs().add(-1, 'day').format("YYYY-MM-DD")))
             }
           },
           {
@@ -151,7 +148,7 @@ export class DashboardService {
     res = await this.prisma.$queryRaw`
       SELECT "public"."Orgao"."sigla", COUNT("public"."Viatura"."orgao_id") as "count_vtr" 
           FROM "public"."Viatura", "public"."Orgao" 
-          WHERE ("public"."Viatura"."orgao_id" = "public"."Orgao"."id" AND "public"."Viatura"."data_validade" < ${new Date(dayjs().add(-1, 'day').add(3, 'hours').format("YYYY-MM-DDTHH:mm:ss"))} AND "public"."Viatura"."situacao_id" = 1 )
+          WHERE ("public"."Viatura"."orgao_id" = "public"."Orgao"."id" AND "public"."Viatura"."data_validade" < ${new Date(dayjs().add(1, 'day').format("YYYY-MM-DD"))} AND "public"."Viatura"."situacao_id" = 1 )
           GROUP BY "public"."Orgao"."sigla" 
           ORDER BY  "count_vtr" 
           DESC`

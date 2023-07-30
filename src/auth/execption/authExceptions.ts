@@ -8,7 +8,7 @@ export class UserNotFoundException extends HttpException {
 
 export class UserUnauthorizedException extends HttpException {
     constructor(email: string) {
-        super(`O Email - ${email} - não está inativo. Entre em contato com o GSI`, HttpStatus.UNAUTHORIZED);
+        super(`O Email - ${email} - está inativo. Entre em contato com o GSI`, HttpStatus.UNAUTHORIZED);
     }
 }
 

@@ -24,3 +24,10 @@ export class PrismaExceptionGenerec extends HttpException {
   }
 }
 
+export class NotAuth extends HttpException {
+  constructor() {
+    super(`O seu perfil de usuário não está autorizado a remover veículo`, HttpStatus.BAD_REQUEST);
+  }
+}
+
+

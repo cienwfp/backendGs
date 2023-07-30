@@ -2,13 +2,14 @@ import { Controller, Get, Post, Body, Patch, Request, Param, Delete, UseGuards, 
 import { VtrService } from './vtr.service';
 import { CreateVtrDto } from './dto/create-vtr.dto';
 import { UpdateVtrDto } from './dto/update-vtr.dto';
-import { PrismaExceptionDeleteNotRecord, PrismaExceptionExistVtr, PrismaExceptionGenerec } from './execption/exceptionVtr';
+import { PrismaExceptionDeleteNotRecord, PrismaExceptionExistVtr, PrismaExceptionGenerec, NotAuth } from './execption/exceptionVtr';
 import { JwtAuthGuard } from 'src/auth/jwt-auth-guard';
 import { RolesGuard } from 'src/auth/rule/role.guard';
 import { HasRoles } from 'src/auth/rule/has-roles.decorator';
 import { Role } from 'src/auth/rule/role.enum';
 import { User } from './role/user.decorator';
 import { SkipThrottle } from '@nestjs/throttler';
+import { env } from 'process';
 
 @SkipThrottle()
 @Controller('vtr')
@@ -82,16 +83,20 @@ export class VtrController {
   @HasRoles(Role.Admin)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':placa')
-  async remove(@Param('placa') placa: string) {
-    try {
-      const vtr = await this.vtrService.remove(placa.toUpperCase());
-      return vtr;
-    }
-    catch (error) {
-      if (error.code === "P2025") {
-        throw new PrismaExceptionDeleteNotRecord(error.meta.cause)
+  async remove(@Request() req, @Param('placa') placa: string) {
+    if (req.user.email === env.USER_ADMIN) {
+      try {
+        const vtr = await this.vtrService.remove(placa.toUpperCase());
+        return vtr;
       }
-      throw new PrismaExceptionGenerec()
+      catch (error) {
+        if (error.code === "P2025") {
+          throw new PrismaExceptionDeleteNotRecord(error.meta.cause)
+        }
+        throw new PrismaExceptionGenerec()
+      }
+    } else {
+      throw new NotAuth()
     }
   }
 

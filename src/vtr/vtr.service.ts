@@ -69,11 +69,9 @@ export class VtrService {
 
   findOnePlacaAtribuida(placa: string) {
     const vtr = this.prima.viatura.findFirst({
-      where: {
-        OR: [
-          { placa_oficial: placa }
-        ]
-      },
+      where:
+        { placa_oficial: placa }
+      ,
       include: {
         situacao: true,
         orgao: true
@@ -111,6 +109,7 @@ export class VtrService {
         data_desvinculacao: updateVtrDto.data_desvinculacao,
         doerj_desvinculacao: updateVtrDto.doerj_desvinculacao,
         observacao: updateVtrDto.observacao,
+        updatedBy: updateVtrDto.updatedBy,
         orgao: {
           connect: {
             id: updateVtrDto.orgao_id,
@@ -140,7 +139,7 @@ export class VtrService {
   //service for user roles type
   async findAllVtr(user: any) {
     if (user.role === 'admin') {
-      const vtrs = this.prima.viatura.findMany({
+      const vtrs = await this.prima.viatura.findMany({
         include: {
           situacao: true,
           orgao: true
