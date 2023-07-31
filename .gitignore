@@ -2,6 +2,8 @@
 /dist
 /node_modules
 .env
+Dockerfile
+docker-compose.*
 
 #Prisma
 /prisma/dev.db
