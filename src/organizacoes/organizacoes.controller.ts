@@ -18,7 +18,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class OrganizacoesController {
   constructor(private readonly organizacoesService: OrganizacoesService) { }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   async create(@Request() req, @Body() createOrganizacoeDto: CreateOrganizacoeDto) {
@@ -35,14 +35,14 @@ export class OrganizacoesController {
     }
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   findAll() {
     return this.organizacoesService.findAll();
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':sigla')
   async findOne(@Param('sigla') sigla: string) {
@@ -54,7 +54,7 @@ export class OrganizacoesController {
     }
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   async update(@Request() req, @Param('id') id: number, @Body() updateOrganizacoeDto: UpdateOrganizacoeDto) {

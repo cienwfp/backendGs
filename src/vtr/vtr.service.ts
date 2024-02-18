@@ -11,60 +11,72 @@ export class VtrService {
 
   async create(createVtrDto: CreateVtrDto) {
 
-    if (createVtrDto.placa_atribuida !== null || createVtrDto.placa_atribuida !== '') {
+    if (createVtrDto.placa_atribuida.length !== 0) {
       const verify = await this.prima.viatura.findFirst({
         where: {
-          placa_atribuida: createVtrDto.placa_atribuida
+          OR: [
+            { placa_atribuida: createVtrDto.placa_oficial },
+            { placa_atribuida: createVtrDto.placa_atribuida },
+            { placa_oficial: createVtrDto.placa_atribuida }
+          ]
         }
       })
 
-      if (verify) {
+      const verify1 = await this.prima.viatura.findFirst({
+        where: {
+          OR: [
+            { placa_atribuida: createVtrDto.placa_oficial },
+            { placa_oficial: createVtrDto.placa_atribuida }
+          ]
+        }
+      })
+
+      if (verify || verify1) {
         throw new Error('A placa já foi atribuida')
-      } else {
-        const vtr = this.prima.viatura.create({
-          data: {
-            data_regsitro: createVtrDto.data_regsitro,
-            processo_vinculacao: createVtrDto.processo_vinculacao,
-            departamento: createVtrDto.departamento,
-            nome: createVtrDto.nome,
-            cpf: createVtrDto.cpf,
-            marca: createVtrDto.marca,
-            modelo: createVtrDto.modelo,
-            cor: createVtrDto.cor,
-            ano: createVtrDto.ano,
-            chassi: createVtrDto.chassi,
-            renavam: createVtrDto.renavam,
-            placa_oficial: createVtrDto.placa_oficial,
-            locado: createVtrDto.locado,
-            data_fim_locacao: createVtrDto.data_fim_locacao,
-            placa_atribuida: createVtrDto.placa_atribuida,
-            data_atribuicao: createVtrDto.data_atribuicao,
-            doerj_atribuicao: createVtrDto.doerj_atribuicao,
-            data_validade: createVtrDto.data_validade,
-            processo_revalidacao: createVtrDto.processo_revalidacao,
-            data_expiracao: createVtrDto.data_expiracao,
-            doerj_revalidacao: createVtrDto.doerj_revalidacao,
-            processo_desvinculacao: createVtrDto.processo_desvinculacao,
-            data_desvinculacao: createVtrDto.data_desvinculacao,
-            doerj_desvinculacao: createVtrDto.doerj_desvinculacao,
-            observacao: createVtrDto.observacao,
-            orgao: {
-              connect: {
-                id: createVtrDto.orgao_id,
-              }
-            },
-            situacao: {
-              connect: {
-                id: createVtrDto.situacao_id
-              }
-            },
-            createdBy: createVtrDto.createdBy,
-            updatedBy: createVtrDto.updatedBy
-          },
-        });
-        return vtr;
       }
     }
+    const vtr = this.prima.viatura.create({
+      data: {
+        data_regsitro: createVtrDto.data_regsitro,
+        processo_vinculacao: createVtrDto.processo_vinculacao,
+        departamento: createVtrDto.departamento,
+        nome: createVtrDto.nome,
+        cpf: createVtrDto.cpf,
+        marca: createVtrDto.marca,
+        modelo: createVtrDto.modelo,
+        cor: createVtrDto.cor,
+        ano: createVtrDto.ano,
+        chassi: createVtrDto.chassi,
+        renavam: createVtrDto.renavam,
+        placa_oficial: createVtrDto.placa_oficial,
+        locado: createVtrDto.locado,
+        data_fim_locacao: createVtrDto.data_fim_locacao,
+        placa_atribuida: createVtrDto.placa_atribuida,
+        data_atribuicao: createVtrDto.data_atribuicao,
+        doerj_atribuicao: createVtrDto.doerj_atribuicao,
+        data_validade: createVtrDto.data_validade,
+        processo_revalidacao: createVtrDto.processo_revalidacao,
+        data_expiracao: createVtrDto.data_expiracao,
+        doerj_revalidacao: createVtrDto.doerj_revalidacao,
+        processo_desvinculacao: createVtrDto.processo_desvinculacao,
+        data_desvinculacao: createVtrDto.data_desvinculacao,
+        doerj_desvinculacao: createVtrDto.doerj_desvinculacao,
+        observacao: createVtrDto.observacao,
+        orgao: {
+          connect: {
+            id: createVtrDto.orgao_id,
+          }
+        },
+        situacao: {
+          connect: {
+            id: createVtrDto.situacao_id
+          }
+        },
+        createdBy: createVtrDto.createdBy,
+        updatedBy: createVtrDto.updatedBy
+      },
+    });
+    return vtr;
   }
 
   findOnePlacaAtribuida(placa: string) {
@@ -80,9 +92,65 @@ export class VtrService {
     return vtr;
   }
 
-  update(placa: string, updateVtrDto: UpdateVtrDto) {
+  async update(id: number, updateVtrDto: UpdateVtrDto) {
+
+
+    const vtrFind = await this.prima.viatura.findFirst({
+      where: { id: Number(id) }
+    })
+
+    if (vtrFind.placa_oficial !== updateVtrDto.placa_oficial) {
+      const verify = await this.prima.viatura.findFirst({
+        where: {
+          OR: [
+            { placa_atribuida: updateVtrDto.placa_oficial },
+            { placa_atribuida: updateVtrDto.placa_atribuida },
+            { placa_oficial: updateVtrDto.placa_atribuida }
+          ]
+        }
+      })
+
+      const verify1 = await this.prima.viatura.findFirst({
+        where: {
+          OR: [
+            { placa_atribuida: updateVtrDto.placa_oficial },
+            { placa_oficial: updateVtrDto.placa_atribuida }
+          ]
+        }
+      })
+
+      if (verify || verify1) {
+        throw new Error('A placa já foi atribuida')
+      }
+    }
+
+    if (vtrFind.placa_atribuida !== updateVtrDto.placa_atribuida) {
+      const verify = await this.prima.viatura.findFirst({
+        where: {
+          OR: [
+            { placa_atribuida: updateVtrDto.placa_oficial },
+            { placa_atribuida: updateVtrDto.placa_atribuida },
+            { placa_oficial: updateVtrDto.placa_atribuida }
+          ]
+        }
+      })
+
+      const verify1 = await this.prima.viatura.findFirst({
+        where: {
+          OR: [
+            { placa_atribuida: updateVtrDto.placa_oficial },
+            { placa_oficial: updateVtrDto.placa_atribuida }
+          ]
+        }
+      })
+
+      if (verify || verify1) {
+        throw new Error('A placa já foi atribuida')
+      }
+    }
+
     const vtr = this.prima.viatura.update({
-      where: { placa_oficial: placa },
+      where: { id: Number(id) },
       data: {
         data_regsitro: updateVtrDto.data_regsitro,
         processo_vinculacao: updateVtrDto.processo_vinculacao,
@@ -138,7 +206,7 @@ export class VtrService {
 
   //service for user roles type
   async findAllVtr(user: any) {
-    if (user.role === 'admin') {
+    if (user.role === 'admin' || user.role === 'analist') {
       const vtrs = await this.prima.viatura.findMany({
         include: {
           situacao: true,

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as dayjs from 'dayjs';
-import { time } from 'console';
 
 @Injectable()
 export class DashboardService {
@@ -49,8 +48,8 @@ export class DashboardService {
 
     res = await this.prisma.$queryRaw`
     SELECT COUNT(*) as "count_vtr"
-    FROM "public"."Viatura"
-    WHERE ("public"."Viatura"."situacao_id" = 1)`
+    FROM "public"."Viatura"`
+    //WHERE ("public"."Viatura"."situacao_id" = 1)`
 
     res.map((el) => {
       var b = JSON.parse(JSON.stringify(el, (_, v) => typeof v === 'bigint' ? Number(v.toString()) : v))

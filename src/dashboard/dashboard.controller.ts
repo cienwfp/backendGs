@@ -18,7 +18,7 @@ export class DashboardController {
      return this.dashboardService.create(createDashboardDto);
    } */
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   countVtrByOrg() {

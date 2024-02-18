@@ -16,15 +16,16 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
-  async create(@Request() req, @Body() createUserDto: CreateUserDto) {
+  async create(@Request() req: any, @Body() createUserDto: CreateUserDto) {
     createUserDto.createdBy = req.user.email
     createUserDto.updatedBy = req.user.email
     try {
       createUserDto.password = await bcrypt.hash(createUserDto.password, 10)
       const user = await this.usersService.create(createUserDto);
+      console.log('user', user)
       return user
     }
     catch (error) {
@@ -34,14 +35,14 @@ export class UsersController {
     }
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':email')
   async findOne(@Param('email') email: string) {
@@ -64,16 +65,17 @@ export class UsersController {
     throw new Unauthorized();
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':email')
   async update(@Param('email') email: string, @Request() req, @Body() updateUserDto: UpdateUserDto) {
     updateUserDto.updatedBy = req.user.email
-    //updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10)
     const user = await this.usersService.update(email, updateUserDto)
     return user;
   }
 
+  @HasRoles(Role.Admin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':email')
   async remove(@Param('email') email: string) {
     try {

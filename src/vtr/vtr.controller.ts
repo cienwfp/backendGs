@@ -16,7 +16,7 @@ import { env } from 'process';
 export class VtrController {
   constructor(private readonly vtrService: VtrService) { }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   @UsePipes(new ValidationPipe({ transform: true }))
@@ -31,12 +31,12 @@ export class VtrController {
       if (error.code === "P2002") {
         throw new PrismaExceptionExistVtr(error.meta.target[0])
       } else {
-        throw new PrismaExceptionExistVtr(createVtrDto.placa_atribuida)
+        throw new PrismaExceptionExistVtr(createVtrDto.placa_oficial)
       }
     }
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   async findAll() {
@@ -49,27 +49,44 @@ export class VtrController {
     return this.vtrService.findAllVtr(user);
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get('situacao')
   async findAllSituacao() {
     return await this.vtrService.findAllSituacao();
   }
 
-  @HasRoles(Role.Admin)
+  @HasRoles(Role.Admin, Role.Analist)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':placa')
   findOnePlacaAtribuida(@Param('placa') placa: string) {
     return this.vtrService.findOnePlacaAtribuida(placa.toUpperCase());
   }
 
+  @HasRoles(Role.Admin, Role.Analist)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Patch(':id')
+  async update(@Param('id') id: number, @Request() req, @Body() updateVtrDto: UpdateVtrDto) {
+    updateVtrDto.updatedBy = req.user.email
+    //try {
+    const vtr = await this.vtrService.update(id, updateVtrDto);
+    return vtr;
+    //}
+    //catch (error) {
+    //  if (error.code === "P2025") {
+    //    throw new PrismaExceptionDeleteNotRecord(error.meta.cause)
+    //  }
+    //  throw new PrismaExceptionGenerec()
+    //}
+  }
+
   @HasRoles(Role.Admin)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Patch(':placa')
-  async update(@Param('placa') placa: string, @Request() req, @Body() updateVtrDto: UpdateVtrDto) {
-    updateVtrDto.updatedBy = req.user.email
+  @Delete(':placa')
+  async remove(@Request() req, @Param('placa') placa: string) {
+    //if (req.user.email === env.USER_ADMIN) {
     try {
-      const vtr = await this.vtrService.update(placa.toUpperCase(), updateVtrDto);
+      const vtr = await this.vtrService.remove(placa.toUpperCase());
       return vtr;
     }
     catch (error) {
@@ -78,26 +95,9 @@ export class VtrController {
       }
       throw new PrismaExceptionGenerec()
     }
-  }
-
-  @HasRoles(Role.Admin)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Delete(':placa')
-  async remove(@Request() req, @Param('placa') placa: string) {
-    if (req.user.email === env.USER_ADMIN) {
-      try {
-        const vtr = await this.vtrService.remove(placa.toUpperCase());
-        return vtr;
-      }
-      catch (error) {
-        if (error.code === "P2025") {
-          throw new PrismaExceptionDeleteNotRecord(error.meta.cause)
-        }
-        throw new PrismaExceptionGenerec()
-      }
-    } else {
-      throw new NotAuth()
-    }
+    //} else {
+    throw new NotAuth()
+    //}
   }
 
 }
