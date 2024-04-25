@@ -70,7 +70,7 @@ export class DashboardService {
     res = await this.prisma.$queryRaw`
      SELECT COUNT(*) as "count_rent" 
     FROM "public"."Viatura"
-    WHERE ("public"."Viatura"."locado" = true AND "public"."Viatura"."situacao_id" = 1)`
+    WHERE ("public"."Viatura"."locado" = true)`
 
     res.map((el) => {
       var b = JSON.parse(JSON.stringify(el, (_, v) => typeof v === 'bigint' ? Number(v.toString()) : v))
